@@ -174,8 +174,8 @@ button{
 }
 </style></head>
 <body><div class="container"><div class="header">
-    <h1>📚 Study Demerit Board</h1>
-    <p>Realtime Shared Scoreboard 😭</p>
+    <h1>Demerit Point Scorecard</h1>
+    <p>Realtime Shared Scoreboard </p>
 </div>
 
 <div class="board">
@@ -185,7 +185,7 @@ button{
             <div class="avatar">V</div>
             <div>
                 <div class="name">Vansh</div>
-                <div class="status">Kal se pakka padhega.</div>
+                <div class="status">New Student.</div>
             </div>
         </div>
 
@@ -201,7 +201,7 @@ button{
             <div class="avatar">T</div>
             <div>
                 <div class="name">Tanmay</div>
-                <div class="status">Target? What target?</div>
+                <div class="status">Physics Lover</div>
             </div>
         </div>
 
@@ -217,7 +217,7 @@ button{
             <div class="avatar">R</div>
             <div>
                 <div class="name">Raghav</div>
-                <div class="status">Professional procrastinator.</div>
+                <div class="status">Professional Procrastinator.</div>
             </div>
         </div>
 
@@ -240,7 +240,7 @@ button{
     <button class="actionBtn reset" onclick="resetAll()">Reset Month</button>
 
     <div class="note">
-        Lowest score wins • Highest score gets 👑💀
+        Lowest score wins • Highest score gets ₹200
     </div>
 </div>
 
@@ -262,7 +262,6 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const analytics = getAnalytics(app);
-
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 const scoresRef = ref(db, 'scores');
