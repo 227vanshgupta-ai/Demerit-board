@@ -1,0 +1,379 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Realtime Demerit Board</title><style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial, sans-serif;
+}
+
+body{
+    background:#0b141a;
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    padding:20px;
+}
+
+.container{
+    width:100%;
+    max-width:430px;
+    background:#111b21;
+    border-radius:22px;
+    overflow:hidden;
+    box-shadow:0 0 30px rgba(0,0,0,0.5);
+}
+
+.header{
+    background:#202c33;
+    padding:20px;
+    text-align:center;
+    border-bottom:1px solid #2f3b43;
+}
+
+.header h1{
+    font-size:26px;
+}
+
+.header p{
+    color:#8696a0;
+    margin-top:5px;
+}
+
+.board{
+    padding:15px;
+}
+
+.student{
+    background:#202c33;
+    border-radius:16px;
+    padding:15px;
+    margin-bottom:14px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.left{
+    display:flex;
+    align-items:center;
+    gap:12px;
+}
+
+.avatar{
+    width:48px;
+    height:48px;
+    border-radius:50%;
+    background:#25d366;
+    color:black;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-weight:bold;
+    font-size:20px;
+}
+
+.name{
+    font-size:18px;
+    font-weight:bold;
+}
+
+.status{
+    font-size:13px;
+    color:#8696a0;
+    margin-top:3px;
+}
+
+.controls{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+button{
+    border:none;
+    cursor:pointer;
+}
+
+.minus,
+.plus{
+    width:34px;
+    height:34px;
+    border-radius:50%;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.minus{
+    background:#2f3b43;
+    color:white;
+}
+
+.plus{
+    background:#25d366;
+    color:black;
+}
+
+.score{
+    width:24px;
+    text-align:center;
+    font-size:20px;
+    font-weight:bold;
+}
+
+.leaderboard{
+    margin:0 15px 15px;
+    background:#202c33;
+    padding:15px;
+    border-radius:16px;
+}
+
+.leaderboard h2{
+    font-size:18px;
+    margin-bottom:10px;
+}
+
+#leaderboardText{
+    color:#d1d7db;
+    line-height:1.8;
+}
+
+.footer{
+    padding:15px;
+}
+
+.actionBtn{
+    width:100%;
+    padding:14px;
+    border-radius:14px;
+    font-size:16px;
+    font-weight:bold;
+    margin-bottom:10px;
+}
+
+.undo{
+    background:#2f3b43;
+    color:white;
+}
+
+.reset{
+    background:#25d366;
+    color:black;
+}
+
+.note{
+    text-align:center;
+    color:#8696a0;
+    margin-top:10px;
+    font-size:13px;
+}
+</style></head>
+<body><div class="container"><div class="header">
+    <h1>📚 Study Demerit Board</h1>
+    <p>Realtime Shared Scoreboard 😭</p>
+</div>
+
+<div class="board">
+
+    <div class="student">
+        <div class="left">
+            <div class="avatar">V</div>
+            <div>
+                <div class="name">Vansh</div>
+                <div class="status">Kal se pakka padhega.</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="minus" onclick="changeScore('vansh',-1)">−</button>
+            <div class="score" id="vansh">0</div>
+            <button class="plus" onclick="changeScore('vansh',1)">+</button>
+        </div>
+    </div>
+
+    <div class="student">
+        <div class="left">
+            <div class="avatar">T</div>
+            <div>
+                <div class="name">Tanmay</div>
+                <div class="status">Target? What target?</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="minus" onclick="changeScore('tanmay',-1)">−</button>
+            <div class="score" id="tanmay">0</div>
+            <button class="plus" onclick="changeScore('tanmay',1)">+</button>
+        </div>
+    </div>
+
+    <div class="student">
+        <div class="left">
+            <div class="avatar">R</div>
+            <div>
+                <div class="name">Raghav</div>
+                <div class="status">Professional procrastinator.</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="minus" onclick="changeScore('raghav',-1)">−</button>
+            <div class="score" id="raghav">0</div>
+            <button class="plus" onclick="changeScore('raghav',1)">+</button>
+        </div>
+    </div>
+
+</div>
+
+<div class="leaderboard">
+    <h2>🏆 Leaderboard</h2>
+    <div id="leaderboardText">Loading...</div>
+</div>
+
+<div class="footer">
+    <button class="actionBtn undo" onclick="undoLastAction()">↩ Undo Last Action</button>
+    <button class="actionBtn reset" onclick="resetAll()">Reset Month</button>
+
+    <div class="note">
+        Lowest score wins • Highest score gets 👑💀
+    </div>
+</div>
+
+</div><script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+import { getDatabase, ref, onValue, set, get } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCr8ZzSHH39sRf_v1DbIS141Wq5E2aLQaI",
+  authDomain: "demerit-board.firebaseapp.com",
+  databaseURL: "https://demerit-board-default-rtdb.firebaseio.com",
+  projectId: "demerit-board",
+  storageBucket: "demerit-board.firebasestorage.app",
+  messagingSenderId: "236615857121",
+  appId: "1:236615857121:web:954b2dac60afec8f0058a0",
+  measurementId: "G-ZF7Z623XGJ"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const scoresRef = ref(db, 'scores');
+
+let lastAction = null;
+
+window.changeScore = async function(id, value){
+
+    let playerName = document.getElementById(id).closest('.student').querySelector('.name').innerText;
+
+    if(value > 0){
+        let ok = confirm(`Add 1 demerit point to ${playerName}? 😭`);
+
+        if(!ok){
+            return;
+        }
+    }
+
+    let current = parseInt(document.getElementById(id).innerText);
+
+    lastAction = {
+        id:id,
+        previous:current
+    };
+
+    current += value;
+
+    if(current < 0){
+        current = 0;
+    }
+
+    await set(ref(db, 'scores/' + id), current);
+}
+
+window.undoLastAction = async function(){
+    if(lastAction){
+        await set(ref(db, 'scores/' + lastAction.id), lastAction.previous);
+        alert('Last action undone ✅');
+    }
+    else{
+        alert('Nothing to undo 😭');
+    }
+}
+
+window.resetAll = async function(){
+
+    let ok = confirm('Reset all scores for new month?');
+
+    if(!ok){
+        return;
+    }
+
+    await set(scoresRef, {
+        vansh:0,
+        tanmay:0,
+        raghav:0
+    });
+}
+
+onValue(scoresRef, (snapshot)=>{
+
+    let data = snapshot.val();
+
+    if(!data){
+        set(scoresRef, {
+            vansh:0,
+            tanmay:0,
+            raghav:0
+        });
+        return;
+    }
+
+    document.getElementById('vansh').innerText = data.vansh || 0;
+    document.getElementById('tanmay').innerText = data.tanmay || 0;
+    document.getElementById('raghav').innerText = data.raghav || 0;
+
+    updateLeaderboard(data);
+});
+
+function updateLeaderboard(data){
+
+    let players = [
+        {name:'Vansh', score:data.vansh || 0},
+        {name:'Tanmay', score:data.tanmay || 0},
+        {name:'Raghav', score:data.raghav || 0}
+    ];
+
+    players.sort((a,b)=>b.score-a.score);
+
+    let loser = players[0];
+    let winner = players[players.length-1];
+
+    let html = '';
+
+    players.forEach((p,index)=>{
+
+        let badge = '';
+
+        if(p.name === winner.name){
+            badge = ' 🏆';
+        }
+
+        if(p.name === loser.name && loser.score > 0){
+            badge += ' 👑💀';
+        }
+
+        html += `${index+1}. ${p.name} — ${p.score}${badge}<br>`;
+    });
+
+    document.getElementById('leaderboardText').innerHTML = html;
+}
+
+</script></body>
+</html>
